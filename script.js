@@ -644,37 +644,37 @@ function initializeWatchingEye() {
     
     // Улучшенное отслеживание мыши с повышенной чувствительностью
     function animateEyeTracking() {
-        // Повышенная внимательность к курсору
-        let attentionBase = Math.sin(breathingPhase * 0.08) * 0.3 + 0.8; // Увеличил базовую внимательность
+        // Максимальная внимательность к курсору
+        let attentionBase = Math.sin(breathingPhase * 0.08) * 0.2 + 0.9; // Еще больше увеличил базовую внимательность
         if (explorationMode === 'rest') {
-            attentionBase *= 0.6; // Меньше снижение в режиме отдыха
+            attentionBase *= 0.7; // Меньше снижение в режиме отдыха
         } else if (explorationMode === 'patrol') {
-            attentionBase *= 0.95; // Почти максимальная внимательность в патруле
+            attentionBase *= 0.98; // Почти максимальная внимательность в патруле
         } else if (explorationMode === 'investigate') {
             attentionBase = 1.0; // Максимальная внимательность при исследовании
         }
         
-        const curiosity = Math.max(0.3, attentionBase); // Убрал влияние velocity на внимательность
+        const curiosity = Math.max(0.5, attentionBase); // Увеличил минимальную внимательность
         
         const deltaX = mouseX - eyeX;
         const deltaY = mouseY - eyeY;
         const angle = Math.atan2(deltaY, deltaX);
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        // Улучшенные параметры движения зрачка
-        const maxDistance = 10 + Math.sin(breathingPhase * 0.3) * 4; // Увеличил диапазон движения
-        const responsiveness = curiosity * (0.8 + Math.sin(breathingPhase * 0.15) * 0.2); // Повысил отзывчивость
-        const normalizedDistance = Math.min(maxDistance, distance / 20) * responsiveness; // Уменьшил делитель для большей чувствительности
+        // Увеличенные параметры движения зрачка для лучшего слежения
+        const maxDistance = 15 + Math.sin(breathingPhase * 0.3) * 6; // Увеличил диапазон движения
+        const responsiveness = curiosity * (0.9 + Math.sin(breathingPhase * 0.15) * 0.1); // Повысил отзывчивость
+        const normalizedDistance = Math.min(maxDistance, distance / 15) * responsiveness; // Еще больше увеличил чувствительность
         
-        // Уменьшенная задержка для более отзывчивого поведения
-        const lagFactor = 0.04 + (explorationMode === 'rest' ? 0.06 : 0); // Убрал влияние velocity
-        const inaccuracy = Math.sin(breathingPhase * 0.4) * 0.15; // Уменьшил неточность
+        // Минимальная задержка для максимальной отзывчивости
+        const lagFactor = 0.02 + (explorationMode === 'rest' ? 0.04 : 0); // Еще больше уменьшил задержку
+        const inaccuracy = Math.sin(breathingPhase * 0.4) * 0.08; // Еще больше уменьшил неточность
         const moveX = Math.cos(angle + inaccuracy) * normalizedDistance * (1 - lagFactor);
         const moveY = Math.sin(angle + inaccuracy) * normalizedDistance * (1 - lagFactor);
         
-        // Более выраженное органичное вращение зрачка
-        const naturalPupilRotation = Math.sin(breathingPhase * 0.7) * 3;
-        const mouseRotation = (angle * 180 / Math.PI) * 0.025 * curiosity; // Значительно увеличил поворот за курсором
+        // Максимально выраженное вращение зрачка за курсором
+        const naturalPupilRotation = Math.sin(breathingPhase * 0.7) * 4;
+        const mouseRotation = (angle * 180 / Math.PI) * 0.045 * curiosity; // Еще больше увеличил поворот за курсором
         const totalPupilRotation = naturalPupilRotation + mouseRotation;
         
         eyeInner.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${totalPupilRotation}deg)`;
