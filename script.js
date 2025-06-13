@@ -370,6 +370,7 @@ function initializeWatchingEye() {
     let lastUserActivity = Date.now();
     let lastEscapeTime = 0; // Время последнего убегания
     let escapeCooldown = 2000; // Перезарядка 2 секунды для стабильности
+    let isEscaping = false; // Флаг процесса убегания
     
     // Проверяем мобильное устройство
     const isMobile = () => window.innerWidth <= 768;
@@ -557,45 +558,45 @@ function initializeWatchingEye() {
         let currentTarget;
         switch (explorationMode) {
             case 'rest':
-                // В режиме отдыха остаемся на месте с очень мягким дрейфом
-                currentTarget = addRandomness(autonomousTarget.x, autonomousTarget.y, 0.2);
+                // В режиме отдыха остаемся на месте с минимальным дрейфом
+                currentTarget = addRandomness(autonomousTarget.x, autonomousTarget.y, 0.1);
                 break;
             case 'escape':
                 // В режиме убегания движемся быстрее к цели
-                currentTarget = addRandomness(autonomousTarget.x, autonomousTarget.y, 0.3);
+                currentTarget = addRandomness(autonomousTarget.x, autonomousTarget.y, 0.2);
                 break;
             case 'patrol':
             default:
-                currentTarget = addRandomness(autonomousTarget.x, autonomousTarget.y, 0.5);
+                currentTarget = addRandomness(autonomousTarget.x, autonomousTarget.y, 0.3);
                 break;
         }
         
-        // Очень плавное обновление целевой позиции
-        if (currentTime - lastMoveTime > 120 || 
-            Math.abs(currentTarget.x - targetX) > 2 || 
-            Math.abs(currentTarget.y - targetY) > 2) {
+        // Ультра плавное обновление целевой позиции
+        if (currentTime - lastMoveTime > 200 || 
+            Math.abs(currentTarget.x - targetX) > 1 || 
+            Math.abs(currentTarget.y - targetY) > 1) {
             
             targetX = currentTarget.x;
             targetY = currentTarget.y;
             lastMoveTime = currentTime;
         }
         
-        // Еще более плавная инерция для естественного движения
-        let inertiaSpeed = 0.008; // Еще больше уменьшил для максимальной плавности
+        // Ультра плавная инерция для устранения рывков
+        let inertiaSpeed = 0.004; // Еще больше уменьшил для идеальной плавности
         if (explorationMode === 'rest') {
-            inertiaSpeed = 0.003; // Очень медленно в режиме отдыха
+            inertiaSpeed = 0.002; // Очень медленно в режиме отдыха
         } else if (explorationMode === 'escape') {
-            inertiaSpeed = 0.025; // Быстрее убегаем от курсора
+            inertiaSpeed = 0.015; // Быстрее убегаем от курсора, но все еще плавно
         }
         
         currentX = applyInertia(currentX, targetX, inertiaSpeed);
         currentY = applyInertia(currentY, targetY, inertiaSpeed);
         
-        // Более плавное дыхание
-        breathingPhase += explorationMode === 'rest' ? 0.01 : 0.015;
-        const breathingIntensity = explorationMode === 'rest' ? 0.6 : 0.9;
-        const breathingX = Math.sin(breathingPhase * 0.6) * 0.8 * breathingIntensity;
-        const breathingY = Math.cos(breathingPhase * 0.4) * 0.5 * breathingIntensity;
+        // Ультра плавное дыхание
+        breathingPhase += explorationMode === 'rest' ? 0.005 : 0.008;
+        const breathingIntensity = explorationMode === 'rest' ? 0.4 : 0.6;
+        const breathingX = Math.sin(breathingPhase * 0.4) * 0.5 * breathingIntensity;
+        const breathingY = Math.cos(breathingPhase * 0.3) * 0.3 * breathingIntensity;
         
         // Финальная позиция
         const finalX = currentX + breathingX;
@@ -604,25 +605,22 @@ function initializeWatchingEye() {
         eye.style.left = `${finalX}%`;
         eye.style.top = `${finalY}%`;
         
-        // Мягкое органичное вращение всего глаза
-        let rotationBase = Math.sin(breathingPhase * 0.2) * 2; // Уменьшил базовое вращение
+        // Ультра мягкое органичное вращение всего глаза
+        let rotationBase = Math.sin(breathingPhase * 0.1) * 1; // Еще больше уменьшил базовое вращение
         if (explorationMode === 'patrol') {
-            rotationBase += Math.sin(breathingPhase * 0.08) * 5; // Уменьшил вращение в патруле
+            rotationBase += Math.sin(breathingPhase * 0.05) * 2; // Минимальное вращение в патруле
         } else if (explorationMode === 'rest') {
-            rotationBase += Math.sin(breathingPhase * 0.03) * 1; // Минимальное вращение в покое
+            rotationBase += Math.sin(breathingPhase * 0.02) * 0.5; // Почти незаметное вращение в покое
         }
         
-        // Добавляем поворот в сторону курсора для всего глаза
-        const deltaX = mouseX - (window.innerWidth * finalX / 100);
-        const deltaY = mouseY - (window.innerHeight * finalY / 100);
-        const mouseAngle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
-        const mouseInfluence = Math.min(1, Math.sqrt(deltaX * deltaX + deltaY * deltaY) / 200);
-        rotationBase += mouseAngle * 0.08 * mouseInfluence; // Поворот всего глаза к курсору
+        // Убрал поворот всего глаза к курсору - это вызывало дерганье при пересечении осей
         
-        // Тонкие микро-движения
-        const microX = Math.sin(breathingPhase * 1.1) * 0.2;
-        const microY = Math.cos(breathingPhase * 0.9) * 0.15;
+        // Ультра тонкие микро-движения
+        const microX = Math.sin(breathingPhase * 0.7) * 0.1;
+        const microY = Math.cos(breathingPhase * 0.6) * 0.08;
         
+        // Убираем любые CSS transitions перед изменением transform для предотвращения дерганья
+        eye.style.transition = 'none';
         eye.style.transform = `translateX(calc(-50% + ${microX}px)) translateY(calc(-50% + ${microY}px)) rotate(${rotationBase}deg)`;
         
         // Мягкое пульсирующее свечение
@@ -700,18 +698,21 @@ function initializeWatchingEye() {
         }
     });
     
-    // Функция плавного "убегания" глаза с перезарядкой
+    // Функция плавного "убегания" глаза с усиленной защитой
     function smoothEscapeFromCursor() {
         const currentTime = Date.now();
         
-        // Проверяем, прошло ли достаточно времени с последнего убегания
-        if (currentTime - lastEscapeTime < escapeCooldown) {
-            console.log('Eye escape on cooldown, ignoring...');
-            return; // Игнорируем, если перезарядка еще не закончилась
+        // Множественная защита от дерганья
+        if (isEscaping || 
+            currentTime - lastEscapeTime < escapeCooldown || 
+            explorationMode === 'escape') {
+            console.log('Eye escape blocked - already escaping or on cooldown');
+            return;
         }
         
         console.log('Eye escaping from cursor!');
-        lastEscapeTime = currentTime; // Обновляем время последнего убегания
+        isEscaping = true;
+        lastEscapeTime = currentTime;
         
         const newTarget = selectNewPatrolTarget();
         console.log('New target:', newTarget);
@@ -724,43 +725,54 @@ function initializeWatchingEye() {
         
         lastAutonomousMove = currentTime;
         
-        // Визуальные эффекты испуга с плавным переходом
+        // Визуальные эффекты испуга - только изменяем прозрачность
         eye.style.opacity = '1';
-        eye.style.transition = 'transform 0.2s ease-out';
-        eye.style.transform = 'translateX(-50%) translateY(-50%) scale(0.9)';
         
         // Переходим в режим быстрого убегания
         explorationMode = 'escape';
         
-        // Возврат к нормальному размеру
-        setTimeout(() => {
-            eye.style.transform = 'translateX(-50%) translateY(-50%) scale(1)';
-        }, 200);
-        
-        // Через секунду возвращаемся к обычному патрулированию
+        // Через 1.5 секунды возвращаемся к обычному патрулированию и разрешаем новые убегания
         setTimeout(() => {
             if (explorationMode === 'escape') {
                 explorationMode = 'patrol';
             }
-        }, 1000);
+            isEscaping = false; // Разрешаем новые убегания
+        }, 1500);
     }
     
-    // Добавляем только один обработчик для избежания дублирования
+    // Добавляем обработчики с debounce для стабильности
     console.log('Adding event listener to eye...');
     
-    let isMouseOverEye = false; // Флаг для отслеживания состояния
+    let isMouseOverEye = false;
+    let mouseEnterTimeout = null;
     
-    eye.addEventListener('mouseenter', (e) => {
-        if (!isMouseOverEye) {
-            console.log('🎯 Mouse entered eye area!');
-            isMouseOverEye = true;
-            smoothEscapeFromCursor();
+    // Функция debounce для предотвращения множественных вызовов
+    function debounceEscape() {
+        if (mouseEnterTimeout) {
+            clearTimeout(mouseEnterTimeout);
         }
-    });
+        
+        mouseEnterTimeout = setTimeout(() => {
+            if (!isMouseOverEye && !isEscaping) {
+                console.log('🎯 Mouse entered eye area (debounced)!');
+                isMouseOverEye = true;
+                smoothEscapeFromCursor();
+            }
+        }, 50); // Задержка 50мс для debounce
+    }
+    
+    eye.addEventListener('mouseenter', debounceEscape);
     
     eye.addEventListener('mouseleave', (e) => {
         console.log('🎯 Mouse left eye area!');
         isMouseOverEye = false;
+        
+        // Очищаем таймаут если мышь ушла до срабатывания
+        if (mouseEnterTimeout) {
+            clearTimeout(mouseEnterTimeout);
+            mouseEnterTimeout = null;
+        }
+        
         eye.style.opacity = '0.85';
         const currentTransform = eye.style.transform.replace(/ scale\([^)]*\)/g, '');
         eye.style.transform = currentTransform;
