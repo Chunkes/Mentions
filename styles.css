@@ -1084,7 +1084,7 @@ body::after {
 .footer-logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     font-family: 'Playfair Display', serif;
     font-size: 24px;
     font-weight: 600;
@@ -1094,8 +1094,16 @@ body::after {
     background-clip: text;
 }
 
-.footer-logo .logo-icon {
+.footer-logo .logo-image {
+    height: 64px;
+    width: auto;
+    margin-top: 5px;
     animation: float 3s ease-in-out infinite;
+}
+
+.logo-dashboard {
+    height: 48px;
+    width: auto;
 }
 
 .footer-tagline {

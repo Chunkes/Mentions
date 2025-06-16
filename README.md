@@ -1,10 +1,10 @@
-# PersonaWatch - Real-Time Personality Monitoring
+# MentionWire - Real-Time Personality Monitoring
 
 A sophisticated web application for monitoring and tracking mentions of personalities across the internet in real-time.
 
 ## 🎯 Project Overview
 
-PersonaWatch is an advanced AI-powered monitoring system that:
+MentionWire is an advanced AI-powered monitoring system that:
 - **Scans the entire web** for personality mentions across millions of sources
 - **Displays real-time data** with beautiful, interactive dashboards  
 - **Provides intelligent analytics** with sentiment analysis and trend detection
@@ -80,7 +80,7 @@ The application is fully responsive with optimized layouts for:
 ## 📁 File Structure
 
 ```
-PersonaWatch/
+MentionWire/
 ├── index.html          # Main HTML structure
 ├── styles.css          # Complete styling and animations
 ├── script.js           # Interactive functionality
@@ -134,4 +134,4 @@ PersonaWatch/
 
 ---
 
-**PersonaWatch** - *Real-time personality monitoring across the web* 
+**MentionWire** - *Real-time personality monitoring across the web* 
